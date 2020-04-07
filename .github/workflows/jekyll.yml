@@ -17,9 +17,6 @@ jobs:
       - name: Setup Node.js environment
         uses: actions/setup-node@v1.4.1
         
-      - name: Clean gh-pages
-        run: npm run gh-pages-clean
-        
       - name: Cache gems
         uses: actions/cache@v1
         with:
