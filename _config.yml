@@ -30,6 +30,8 @@ github_username:  jamespj
 
 # Build settings
 remote_theme: pmarsceill/just-the-docs
+color_scheme: ""
+
 plugins:
   - jekyll-feed
   - jekyll-paginate-v2
