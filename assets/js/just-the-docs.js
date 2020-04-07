@@ -1,1 +1,295 @@
-!function(e){function t(){const t=document.querySelector(".js-main-nav"),n=document.querySelector(".js-page-header"),r=document.querySelector(".js-main-nav-trigger");e.addEvent(r,"click",function(e){e.preventDefault();var a=r.innerText,s=r.getAttribute("data-text-toggle");t.classList.toggle("nav-open"),n.classList.toggle("nav-open"),r.classList.toggle("nav-open"),r.innerText=s,r.setAttribute("data-text-toggle",a),s=a})}function n(){function t(t,n){function r(){i.innerHTML="",i.classList.remove("active")}t=t;var a=n,s=document.querySelector(".js-search-input"),i=document.querySelector(".js-search-results");e.addEvent(s,"keydown",function(e){switch(e.keyCode){case 38:if(e.preventDefault(),n=document.querySelector(".search-result.active"))if(n.classList.remove("active"),n.parentElement.previousSibling)n.parentElement.previousSibling.querySelector(".search-result").classList.add("active");return;case 40:if(e.preventDefault(),n=document.querySelector(".search-result.active")){if(n.parentElement.nextSibling){var t=n.parentElement.nextSibling.querySelector(".search-result");n.classList.remove("active"),t.classList.add("active")}}else(t=document.querySelector(".search-result"))&&t.classList.add("active");return;case 13:var n;if(e.preventDefault(),n=document.querySelector(".search-result.active"))n.click();else{var r=document.querySelector(".search-result");r&&r.click()}return}}),e.addEvent(s,"keyup",function(e){switch(e.keyCode){case 27:return r(),void(s.value="");case 38:case 40:case 13:return void e.preventDefault()}r();var n=this.value;if(""!==n){var c=t.query(function(e){var t=lunr.tokenizer(n);e.term(t,{boost:10}),e.term(t,{wildcard:lunr.Query.wildcard.TRAILING})});if(c.length>0){i.classList.add("active");var o=document.createElement("ul");for(var l in o.classList.add("search-results-list"),i.appendChild(o),c){var u=c[l],d=a[u.ref],v=document.createElement("li");v.classList.add("search-results-list-item"),o.appendChild(v);var f=document.createElement("a");f.classList.add("search-result"),f.setAttribute("href",d.url),v.appendChild(f);var h=document.createElement("div");h.classList.add("search-result-title"),h.innerText=d.title,f.appendChild(h);var m=document.createElement("span");m.classList.add("search-result-rel-url"),m.innerText=d.relUrl,h.appendChild(m);var p=u.matchData.metadata,g=!1;for(var E in p)if(p[E].title){var L=(b=p[E].title.position[0])[0],y=b[0]+b[1];h.innerHTML=d.title.substring(0,L)+'<span class="search-result-highlight">'+d.title.substring(L,y)+"</span>"+d.title.substring(y,d.title.length)+'<span class="search-result-rel-url">'+d.relUrl+"</span>"}else if(p[E].content&&!g){g=!0;for(var b,S=L=(b=p[E].content.position[0])[0],q=y=b[0]+b[1],x=!0,j=!0,k=0;k<3;k++){var w=d.content.lastIndexOf(" ",S-2);if((T=d.content.lastIndexOf(".",S-2))>0&&T>w){S=T+1,x=!1;break}if(w<0){S=0,x=!1;break}S=w+1}for(k=0;k<10;k++){var T;w=d.content.indexOf(" ",q+1);if((T=d.content.indexOf(".",q+1))>0&&T<w){q=T,j=!1;break}if(w<0){q=d.content.length,j=!1;break}q=w}var C=d.content.substring(S,L);x&&(C="... "+C),C+='<span class="search-result-highlight">'+d.content.substring(L,y)+"</span>",C+=d.content.substring(y,q),j&&(C+=" ...");var D=document.createElement("div");D.classList.add("search-result-preview"),D.innerHTML=C,f.appendChild(D)}}}}}),e.addEvent(s,"blur",function(){setTimeout(function(){r()},300)})}var n=new XMLHttpRequest;n.open("GET","https://blog.jamespj.com/assets/js/search-data.json",!0),n.onload=function(){if(n.status>=200&&n.status<400){var e=JSON.parse(n.responseText);lunr.tokenizer.separator=/[\s\-/]+/,t(lunr(function(){for(var t in this.ref("id"),this.field("title",{boost:200}),this.field("content",{boost:2}),this.field("url"),this.metadataWhitelist=["position"],e)this.add({id:t,title:e[t].title,content:e[t].content,url:e[t].url})}),e)}else console.log("Error loading ajax request. Request status:"+n.status)},n.onerror=function(){console.log("There was a connection error")},n.send()}function r(){document.querySelector(".js-main-content").focus()}e.addEvent=function(e,t,n){e.attachEvent?e.attachEvent("on"+t,n):e.addEventListener(t,n)},e.removeEvent=function(e,t,n){e.detachEvent?e.detachEvent("on"+t,n):e.removeEventListener(t,n)},e.onReady=function(e){"loading"!=document.readyState?e():document.addEventListener?document.addEventListener("DOMContentLoaded",e):document.attachEvent("onreadystatechange",function(){"complete"==document.readyState&&e()})},e.onReady(function(){t(),r(),"undefined"!=typeof lunr&&n()})}(window.jtd=window.jtd||{});
+(function (jtd, undefined) {
+
+// Event handling
+
+jtd.addEvent = function(el, type, handler) {
+  if (el.attachEvent) el.attachEvent('on'+type, handler); else el.addEventListener(type, handler);
+}
+jtd.removeEvent = function(el, type, handler) {
+  if (el.detachEvent) el.detachEvent('on'+type, handler); else el.removeEventListener(type, handler);
+}
+jtd.onReady = function(ready) {
+  // in case the document is already rendered
+  if (document.readyState!='loading') ready();
+  // modern browsers
+  else if (document.addEventListener) document.addEventListener('DOMContentLoaded', ready);
+  // IE <= 8
+  else document.attachEvent('onreadystatechange', function(){
+      if (document.readyState=='complete') ready();
+  });
+}
+
+// Show/hide mobile menu
+
+function initNav() {
+  const mainNav = document.querySelector('.js-main-nav');
+  const pageHeader = document.querySelector('.js-page-header');
+  const navTrigger = document.querySelector('.js-main-nav-trigger');
+
+  jtd.addEvent(navTrigger, 'click', function(e){
+    e.preventDefault();
+    var text = navTrigger.innerText;
+    var textToggle = navTrigger.getAttribute('data-text-toggle');
+
+    mainNav.classList.toggle('nav-open');
+    pageHeader.classList.toggle('nav-open');
+    navTrigger.classList.toggle('nav-open');
+    navTrigger.innerText = textToggle;
+    navTrigger.setAttribute('data-text-toggle', text);
+    textToggle = text;
+  })
+}
+
+// Site search
+
+function initSearch() {
+  var request = new XMLHttpRequest();
+  request.open('GET', 'https://blog.jamespj.com/assets/js/search-data.json', true);
+
+  request.onload = function(){
+    if (request.status >= 200 && request.status < 400) {
+      // Success!
+      var data = JSON.parse(request.responseText);
+      
+      
+      lunr.tokenizer.separator = /[\s\-/]+/
+      
+      
+      var index = lunr(function () {
+        this.ref('id');
+        this.field('title', { boost: 200 });
+        this.field('content', { boost: 2 });
+        this.field('url');
+        this.metadataWhitelist = ['position']
+
+        for (var i in data) {
+          this.add({
+            id: i,
+            title: data[i].title,
+            content: data[i].content,
+            url: data[i].url
+          });
+        }
+      });
+
+      searchResults(index, data);
+    } else {
+      // We reached our target server, but it returned an error
+      console.log('Error loading ajax request. Request status:' + request.status);
+    }
+  };
+
+  request.onerror = function(){
+    // There was a connection error of some sort
+    console.log('There was a connection error');
+  };
+
+  request.send();
+
+  function searchResults(index, data) {
+    var index = index;
+    var docs = data;
+    var searchInput = document.querySelector('.js-search-input');
+    var searchResults = document.querySelector('.js-search-results');
+
+    function hideResults() {
+      searchResults.innerHTML = '';
+      searchResults.classList.remove('active');
+    }
+
+    jtd.addEvent(searchInput, 'keydown', function(e){
+      switch (e.keyCode) {
+        case 38: // arrow up
+          e.preventDefault();
+          var active = document.querySelector('.search-result.active');
+          if (active) {
+            active.classList.remove('active');
+            if (active.parentElement.previousSibling) {
+              var previous = active.parentElement.previousSibling.querySelector('.search-result');
+              previous.classList.add('active');
+            }
+          }
+          return;
+        case 40: // arrow down
+          e.preventDefault();
+          var active = document.querySelector('.search-result.active');
+          if (active) {
+            if (active.parentElement.nextSibling) {
+              var next = active.parentElement.nextSibling.querySelector('.search-result');
+              active.classList.remove('active');
+              next.classList.add('active');
+            }
+          } else {
+            var next = document.querySelector('.search-result');
+            if (next) {
+              next.classList.add('active');
+            }
+          }
+          return;
+        case 13: // enter
+          e.preventDefault();
+          var active = document.querySelector('.search-result.active');
+          if (active) {
+            active.click();
+          } else {
+            var first = document.querySelector('.search-result');
+            if (first) {
+              first.click();
+            }
+          }
+          return;
+      }
+    });
+
+    jtd.addEvent(searchInput, 'keyup', function(e){
+      switch (e.keyCode) {
+        case 27: // When esc key is pressed, hide the results and clear the field
+          hideResults();
+          searchInput.value = '';
+          return;
+        case 38: // arrow up
+        case 40: // arrow down
+        case 13: // enter
+          e.preventDefault();
+          return;
+      }
+
+      hideResults();
+
+      var input = this.value;
+      if (input === '') {
+        return;
+      }
+
+      var results = index.query(function (query) {
+        var tokens = lunr.tokenizer(input)
+        query.term(tokens, {
+          boost: 10
+        });
+        query.term(tokens, {
+          wildcard: lunr.Query.wildcard.TRAILING
+        });
+      });
+
+      if (results.length > 0) {
+        searchResults.classList.add('active');
+        var resultsList = document.createElement('ul');
+        resultsList.classList.add('search-results-list');
+        searchResults.appendChild(resultsList);
+
+        for (var i in results) {
+          var result = results[i];
+          var doc = docs[result.ref];
+
+          var resultsListItem = document.createElement('li');
+          resultsListItem.classList.add('search-results-list-item');
+          resultsList.appendChild(resultsListItem);
+
+          var resultLink = document.createElement('a');
+          resultLink.classList.add('search-result');
+          resultLink.setAttribute('href', doc.url);
+          resultsListItem.appendChild(resultLink);
+
+          var resultTitle = document.createElement('div');
+          resultTitle.classList.add('search-result-title');
+          resultTitle.innerText = doc.title;
+          resultLink.appendChild(resultTitle);
+
+          var resultRelUrl = document.createElement('span');
+          resultRelUrl.classList.add('search-result-rel-url');
+          resultRelUrl.innerText = doc.relUrl;
+          resultTitle.appendChild(resultRelUrl);
+
+          var metadata = result.matchData.metadata;
+          var contentFound = false;
+          for (var j in metadata) {
+            if (metadata[j].title) {
+              var position = metadata[j].title.position[0];
+              var start = position[0];
+              var end = position[0] + position[1];
+              resultTitle.innerHTML = doc.title.substring(0, start) + '<span class="search-result-highlight">' + doc.title.substring(start, end) + '</span>' + doc.title.substring(end, doc.title.length)+'<span class="search-result-rel-url">'+doc.relUrl+'</span>';
+
+            } else if (metadata[j].content && !contentFound) {
+              contentFound = true;
+
+              var position = metadata[j].content.position[0];
+              var start = position[0];
+              var end = position[0] + position[1];
+              var previewStart = start;
+              var previewEnd = end;
+              var ellipsesBefore = true;
+              var ellipsesAfter = true;
+              for (var k = 0; k < 3; k++) {
+                var nextSpace = doc.content.lastIndexOf(' ', previewStart - 2);
+                var nextDot = doc.content.lastIndexOf('.', previewStart - 2);
+                if ((nextDot > 0) && (nextDot > nextSpace)) {
+                  previewStart = nextDot + 1;
+                  ellipsesBefore = false;
+                  break;
+                }
+                if (nextSpace < 0) {
+                  previewStart = 0;
+                  ellipsesBefore = false;
+                  break;
+                }
+                previewStart = nextSpace + 1;
+              }
+              for (var k = 0; k < 10; k++) {
+                var nextSpace = doc.content.indexOf(' ', previewEnd + 1);
+                var nextDot = doc.content.indexOf('.', previewEnd + 1);
+                if ((nextDot > 0) && (nextDot < nextSpace)) {
+                  previewEnd = nextDot;
+                  ellipsesAfter = false;
+                  break;
+                }
+                if (nextSpace < 0) {
+                  previewEnd = doc.content.length;
+                  ellipsesAfter = false;
+                  break;
+                }
+                previewEnd = nextSpace;
+              }
+              var preview = doc.content.substring(previewStart, start);
+              if (ellipsesBefore) {
+                preview = '... ' + preview;
+              }
+              preview += '<span class="search-result-highlight">' + doc.content.substring(start, end) + '</span>';
+              preview += doc.content.substring(end, previewEnd);
+              if (ellipsesAfter) {
+                preview += ' ...';
+              }
+
+              var resultPreview = document.createElement('div');
+              resultPreview.classList.add('search-result-preview');
+              resultPreview.innerHTML = preview;
+              resultLink.appendChild(resultPreview);
+            }
+          }
+        }
+      }
+    });
+
+    jtd.addEvent(searchInput, 'blur', function(){
+      setTimeout(function(){ hideResults() }, 300);
+    });
+  }
+}
+
+function pageFocus() {
+  var mainContent = document.querySelector('.js-main-content');
+  mainContent.focus();
+}
+
+// Document ready
+
+jtd.onReady(function(){
+  initNav();
+  pageFocus();
+  if (typeof lunr !== 'undefined') {
+    initSearch();
+  }
+});
+
+})(window.jtd = window.jtd || {});
+
+
