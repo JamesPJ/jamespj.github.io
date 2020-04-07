@@ -13,8 +13,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Install dependencies
-      run: bundle install
+    - name: jekyll-deploy
+    - uses: DavidS/jekyll-deploy@1.1.1
     - name: Build the site in the jekyll/builder container
       run: |
         docker run \
