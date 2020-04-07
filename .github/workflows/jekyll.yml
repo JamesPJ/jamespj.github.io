@@ -14,8 +14,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         
-      - name: Install nodejs
-        run: apt-get install nodejs
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v1.4.1
 
       - name: Cache gems
         uses: actions/cache@v1
