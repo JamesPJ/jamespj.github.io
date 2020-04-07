@@ -12,7 +12,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+      - uses: actions/checkout@v2
+        
+      - name: Install nodejs
+        run: apt-get install nodejs
+
+      - name: Cache gems
+        uses: actions/cache@v1
+        with:
+          path: vendor/gems
+          key: ${{ runner.os }}-build-${{ hashFiles('**/Gemfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
       
-    - name: jekyll-deploy
-      uses: DavidS/jekyll-deploy@1.1.1
+      - name: jekyll-deploy
+        uses: DavidS/jekyll-deploy@1.1.1
